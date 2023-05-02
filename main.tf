@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.0"
     }
+    dns = {
+      source  = "hashicorp/dns"
+      version = "~> 3.3"
+    }
   }
   backend "s3" {
     # variables not supported in backend

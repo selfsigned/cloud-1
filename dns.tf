@@ -12,8 +12,14 @@ resource "aws_route53_record" "primary" {
   zone_id = aws_route53_zone.primary.zone_id
   name    = var.domain
   type    = "A"
-  ttl     = 60
-  records = data.dns_a_record_set.lb_ip.addrs
+
+  // alias record => no TTL (60 by amazon)
+  alias {
+    name                   = aws_lb.lb.dns_name
+    zone_id                = aws_lb.lb.zone_id
+    evaluate_target_health = true
+  }
+
 }
 
 #  ___ ___ _    
