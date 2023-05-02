@@ -52,6 +52,9 @@ resource "aws_lb" "lb" {
   load_balancer_type = "application" // ALB, layer 3
   subnets            = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]
   security_groups    = [aws_security_group.lb_sg.id]
+
+  enable_cross_zone_load_balancing = true
+  drop_invalid_header_fields       = true
 }
 
 // target EC2 wp servers
@@ -59,7 +62,7 @@ resource "aws_lb_target_group" "wp" {
   port     = 80
   protocol = "HTTP"
 
-  vpc_id = aws_vpc.vpc.id // TODO target EC2s
+  vpc_id = aws_vpc.vpc.id
 }
 
 // send HTTPS traffic to EC2 wp servers

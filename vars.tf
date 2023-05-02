@@ -6,17 +6,18 @@ variable "domain" {
 // Region
 
 variable "region" {
-  type = string
+  type        = string
+  description = "AWS region"
 }
 
 variable "zone1" {
-  description = "AvailabilityZone 1"
   type        = string
+  description = "AvailabilityZone 1"
 }
 
 variable "zone2" {
-  description = "AvailabilityZone 2"
   type        = string
+  description = "AvailabilityZone 2"
 }
 
 // Network
@@ -39,9 +40,22 @@ variable "subnet2" {
   default     = "10.0.42.0/24"
 }
 
+variable "wp1_ip" {
+  type        = string
+  description = "Private IP for the first WP instance (needs to be in subnet1)"
+  default     = "10.0.21.11"
+}
+
+variable "wp2_ip" {
+  type        = string
+  description = "Private IP for the second WP instance (needs to be in subnet2)"
+  default     = "10.0.42.11"
+}
+
 // Instances
 
 variable "instance-type" {
   type        = string
   description = "EC2 instance type for the wp servers"
 }
+

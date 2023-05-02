@@ -5,6 +5,10 @@
 
 resource "aws_route53_zone" "primary" {
   name = var.domain
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 // record for our website to our load balancer
@@ -32,6 +36,10 @@ resource "aws_route53_record" "primary" {
 resource "aws_acm_certificate" "cert" {
   domain_name       = var.domain
   validation_method = "DNS"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 // SSL certificate DNS
@@ -51,10 +59,18 @@ resource "aws_route53_record" "cert_dns" {
   type            = each.value.type
 
   zone_id = aws_route53_zone.primary.zone_id
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 // SSL certificate validation
 resource "aws_acm_certificate_validation" "primary" {
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.cert_dns : record.fqdn]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
