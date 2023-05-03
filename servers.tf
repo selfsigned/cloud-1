@@ -1,26 +1,56 @@
-// Could be adapted to scale to N servers
+// TODO: apply IAM role to instance to access secrets and SSM
 
-// First server
+// Instance AMI
+data "aws_ami" "cloud-1" {
+  owners = ["self"]
 
-resource "aws_lb_target_group_attachment" "wp1" {
-  target_group_arn = aws_lb_target_group.wp.arn
-  target_id        = aws_instance.wp1.id
-  port             = 80
+  filter {
+    name   = "name"
+    values = ["cloud-1"]
+  }
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
 }
 
-resource "aws_instance" "wp1" {
-  instance_type = var.instance-type
-  // TODO provision custom image with packer/ansible
-  ami                    = "ami-05bfef86a955a699e"
-  subnet_id              = aws_subnet.subnet1.id
-  private_ip             = var.wp1_ip
+// Instance template
+resource "aws_launch_template" "wp" {
+  name                   = "wp_template"
+  instance_type          = var.instance-type
   vpc_security_group_ids = [aws_security_group.wp_sg.id]
+  update_default_version = true
+
+  image_id = data.aws_ami.cloud-1.id
 }
 
-// Second server
+// TODO Scale policy (CPU usage? LB traffic?)
 
-# resource "aws_lb_target_group_attachment" "wp2" {
-#   target_group_arn = aws_lb_target_group.wp.arn
-#   target_id        = aws_instance.wp2.id
-#   port             = 80
-# }
+// Attach auto-scaling group to ALB
+resource "aws_autoscaling_attachment" "asg_attachment_wp" {
+  autoscaling_group_name = aws_autoscaling_group.wp.id
+  lb_target_group_arn    = aws_lb_target_group.wp.arn
+}
+
+// auto-scaling group definition
+resource "aws_autoscaling_group" "wp" {
+  // should distribute instance between the two AZ/subnets
+  vpc_zone_identifier = [aws_subnet.subnet1.id, aws_subnet.subnet2.id]
+  min_size            = 2
+  max_size            = 5 // 💸
+
+  launch_template {
+    id      = aws_launch_template.wp.id
+    version = "$Latest"
+  }
+
+  # // dissociate tf from scaling
+  # lifecycle {
+  #   ignore_changes = [desired_capacity, target_group_arns]
+  # }
+}

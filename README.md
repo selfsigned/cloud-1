@@ -13,6 +13,29 @@ Said guidelines restrict the use of services like amazon's convenient `RDS` and 
 $ export AWS_ACCESS_KEY=<Your access key here> AWS_SECRET_ACCESS_KEY=<Your secret access key here>
 ```
 
+2) Put your local variables in *.auto.tf files, for example:
+
+```shell
+$ cat cloud1.auto.tfvars
+domain = "cloud1sucks.quest" # Domain for our site
+```
+
 3) Replace the bucket-id in `main.tf` to something unique or remove the section entirely to use a local state file (not recommended).
 
-3) TODO
+4) Build the AMI using `Packer`
+
+```shell
+$ packer build aws_wp.pkr.hcl
+```
+
+5) Apply the `terraform` resources, the website should now be reachable at the ALB, and at the domain if the DNS server is set properly.
+
+```shell
+$ terraform init
+[...]
+$ terraform apply
+[...]
+```
+
+## High availability MySQL without RDS
+TODO, wordpress -> Consul -> sqlproxy -> mysql ?
