@@ -1,0 +1,5 @@
+- name: Setup docker and the website
+  hosts: all
+  become: true
+  roles:
+    - docker

@@ -51,3 +51,8 @@ variable "instance-type" {
   default     = "t3.micro"
 }
 
+variable "pubkey" { // TODO remove
+  type        = string
+  description = "SSH pubkey"
+}
+

@@ -4,6 +4,10 @@ packer {
             version = ">= 1.2.5"
             source  = "github.com/hashicorp/amazon"
         }
+        ansible = {
+            version = ">= 1.0.4"
+            source  = "github.com/hashicorp/ansible"
+        }
     }
 }
 
@@ -28,6 +32,9 @@ source "amazon-ebs" "debian" {
     region          = var.region
     instance_type   = var.instance-type
 
+    force_deregister        = true
+    force_delete_snapshot   = true // TODO remove once finished (could pose problem with auto-scaling)
+
     source_ami_filter {
         filters = {
             name                = "debian-11-amd64-*"
@@ -49,8 +56,8 @@ build {
       inline = [
         "echo Installing ansible",
         "sleep 5",
-        "sudo apt-get update",
-        "sudo apt-get install -y ansible",
+        "DEBIAN_FRONTEND=noninteractive sudo apt-get update",
+        "DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ansible",
         "echo Installing Amazon SSM",
         "sleep 5",
         "mkdir /tmp/ssm",
@@ -58,5 +65,9 @@ build {
         "wget https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_amd64/amazon-ssm-agent.deb",
         "sudo dpkg -i amazon-ssm-agent.deb",
       ]
+    }
+
+    provisioner "ansible" {
+        playbook_file = "./cloud1_ami_playbook.yml"
     }
 }

@@ -1,4 +1,4 @@
-// TODO: apply IAM role to instance to access secrets and SSM
+// EC2 Auto-scaling group
 
 // Instance AMI
 data "aws_ami" "cloud-1" {
@@ -19,12 +19,30 @@ data "aws_ami" "cloud-1" {
   }
 }
 
+// TODO remove once ssm works
+
+resource "aws_key_pair" "code" {
+  key_name   = "code-key"
+  public_key = var.pubkey
+}
+
 // Instance template
 resource "aws_launch_template" "wp" {
   name                   = "wp_template"
   instance_type          = var.instance-type
-  vpc_security_group_ids = [aws_security_group.wp_sg.id]
   update_default_version = true
+  # vpc_security_group_ids = [aws_security_group.wp_sg.id]
+
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.cloud1profile.name
+  }
+
+  key_name = aws_key_pair.code.key_name
+  network_interfaces { // TODO remove once SSM works
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.wp_sg.id]
+  }
 
   image_id = data.aws_ami.cloud-1.id
 }
