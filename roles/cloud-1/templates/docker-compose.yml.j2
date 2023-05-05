@@ -1,0 +1,52 @@
+version: '3.7'
+services:
+
+  nginx:
+    image: nginx:{{ nginx_docker_version }}
+    restart: always
+    depends_on:
+      - {{ wordpress_docker_name }}
+    ports:
+      - "{{ nginx_host_port }}:80"
+    volumes:
+      - ./cloud-1.conf:/etc/nginx/conf.d/default.conf:ro
+      - wordpress_html:/var/www/html/:ro
+
+  {{ wordpress_docker_name }}:
+    image: wordpress:{{ wordpress_docker_version }}
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: ${db_host}
+      WORDPRESS_DB_USER: ${db_user}
+      WORDPRESS_DB_PASSWORD: ${db_password}
+      WORDPRESS_DB_NAME: ${db_name}
+    volumes:
+      - wordpress_html:/var/www/html/
+
+  {{ wordpress_docker_name }}-cli:
+    image: wordpress:cli  
+    depends_on:
+      - {{ wordpress_docker_name }}
+      - nginx
+    environment:
+      WORDPRESS_DB_HOST: ${db_host}
+      WORDPRESS_DB_USER: ${db_user}
+      WORDPRESS_DB_PASSWORD: ${db_password}
+      WORDPRESS_DB_NAME: ${db_name}
+    volumes:
+      - wordpress_html:/var/www/html/
+    command: 'wp core install --url=${url} --title=${title} --admin_name=${admin_name} --admin_password=${admin_password} --admin_email=${admin_email}'
+  
+  pma:
+    image: phpmyadmin/phpmyadmin:{{ pma_docker_version }}
+    restart: always
+    environment:
+      PMA_HOST: ${db_host}
+      PMA_PORT: {{ pma_port }}
+
+volumes:
+  wordpress_html:
+    driver_opts:
+     type: none
+     o: bind
+     device: {{ install_dir }}/wordpress

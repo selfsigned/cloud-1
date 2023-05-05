@@ -1,9 +1,46 @@
+- name: Install dependencies
+  ansible.builtin.apt:
+    name:
+      - mariadb-client-10.5
+    state: present
+    update_cache: true
+    install_recommends: false
+
 - name: Create /srv/cloud-1
   ansible.builtin.file:
     path: "{{ install_dir }}"
     state: directory
+    mode: 0700
+
+- name: Create /srv/cloud-1/wordpress
+  ansible.builtin.file:
+    path: "{{ install_dir }}/wordpress"
+    state: directory
+    mode: 0755
+
+- name: Install nginx template
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ install_dir }}/cloud-1.conf"
 
 - name: Install docker-compose template
   ansible.builtin.template:
     src: docker-compose.yml.j2
     dest: "{{ install_dir }}/docker-compose.yml"
+
+- name: Add launch script
+  ansible.builtin.template:
+    src: launch_script.sh.j2
+    dest: "{{ launch_script_dest }}/{{ launch_script_name }}"
+    mode: 0755
+
+- name: Add service unit
+  ansible.builtin.template:
+    src: systemd.service.j2
+    dest: "{{ systemd_unit_dest }}/{{ systemd_unit_name }}"
+
+- name: Enable service unit (but don't start it!)
+  ansible.builtin.systemd:
+    name: "{{ systemd_unit_name }}"
+    enabled: true
+    state: stopped

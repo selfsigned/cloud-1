@@ -1,1 +1,17 @@
+# Install
 install_dir: "/srv/cloud-1"
+launch_script_name: "cloud-1_run"
+launch_script_dest: "/usr/local/bin/"
+systemd_unit_name: "cloud-1.service"
+systemd_unit_dest: "/etc/systemd/system/"
+
+# Docker
+
+nginx_host_port: "8080"
+nginx_docker_version: "stable"
+
+wordpress_docker_name: "wp"
+wordpress_docker_version: "php8.2-fpm"
+
+pma_docker_version: "fpm-alpine"
+pma_port: "8888"

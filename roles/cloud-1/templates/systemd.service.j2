@@ -1,0 +1,12 @@
+[Unit]
+Description=Cloud-1 instance boot initialization
+After=docker.service
+BindsTo=docker.service
+ReloadPropagatedFrom=docker.service
+
+[Service]
+Type=oneshot
+ExecStart="{{ launch_script_dest }}/{{ launch_script_name }}"
+
+[Install]
+WantedBy=multi-user.target
