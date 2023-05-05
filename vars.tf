@@ -37,10 +37,22 @@ variable "subnet1" {
   default     = "10.0.21.0/24"
 }
 
+variable "subnet1_private" {
+  type        = string
+  description = "CIDR for the first private subnet"
+  default     = "10.0.22.0/24"
+}
+
 variable "subnet2" {
   type        = string
   description = "CIDR for the second subnet"
   default     = "10.0.42.0/24"
+}
+
+variable "subnet2_private" {
+  type        = string
+  description = "CIDR for the second private subnet"
+  default     = "10.0.43.0/24"
 }
 
 // Instances
@@ -51,7 +63,35 @@ variable "instance-type" {
   default     = "t3.micro"
 }
 
-variable "pubkey" { // TODO remove
+// Databasae
+// Would actually use a random password and use AWS secret storage in the real world
+
+variable "db-user" {
+  type        = string
+  description = "RDS DB user"
+}
+
+variable "db-password" {
+  type        = string
+  description = "RDS DB password"
+}
+
+// Wordpress
+
+variable "reverse-proxy-port" {
+  type        = number
+  description = "APP reverse proxy endpoint port"
+  default     = 8080
+}
+
+variable "wp-health-check" {
+  type        = string
+  description = "Wordpress health check path"
+  default     = "/wp-admin/images/wordpress-logo.svg"
+}
+
+
+variable "pubkey" {
   type        = string
   description = "SSH pubkey"
 }

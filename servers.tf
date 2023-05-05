@@ -44,6 +44,8 @@ resource "aws_launch_template" "wp" {
     security_groups             = [aws_security_group.wp_sg.id]
   }
 
+  // TODO NFS share for wp_content
+
   image_id = data.aws_ami.cloud-1.id
 }
 
@@ -68,7 +70,7 @@ resource "aws_autoscaling_group" "wp" {
   }
 
   # // dissociate tf from scaling
-  # lifecycle {
-  #   ignore_changes = [desired_capacity, target_group_arns]
-  # }
+  lifecycle {
+    ignore_changes = [desired_capacity, target_group_arns]
+  }
 }

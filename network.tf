@@ -14,11 +14,24 @@ resource "aws_subnet" "subnet1" {
   cidr_block        = var.subnet1
 }
 
+resource "aws_subnet" "subnet1_private" {
+  vpc_id            = aws_vpc.vpc.id
+  availability_zone = var.zone1
+  cidr_block        = var.subnet1_private
+}
+
 resource "aws_subnet" "subnet2" {
   vpc_id            = aws_vpc.vpc.id
   availability_zone = var.zone2
   cidr_block        = var.subnet2
 }
+
+resource "aws_subnet" "subnet2_private" {
+  vpc_id            = aws_vpc.vpc.id
+  availability_zone = var.zone2
+  cidr_block        = var.subnet2_private
+}
+
 
 // gateaway
 resource "aws_internet_gateway" "igw" {
@@ -59,10 +72,18 @@ resource "aws_lb" "lb" {
 
 // target EC2 wp servers
 resource "aws_lb_target_group" "wp" {
-  port     = 80
+  port     = var.reverse-proxy-port
   protocol = "HTTP"
 
   vpc_id = aws_vpc.vpc.id
+  health_check {
+    path                = var.wp-health-check
+    port                = var.reverse-proxy-port
+    protocol            = "HTTP"
+    matcher             = "200"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+  }
 }
 
 // send HTTPS traffic to EC2 wp servers
@@ -76,6 +97,10 @@ resource "aws_lb_listener" "wp" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.wp.arn
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -93,5 +118,9 @@ resource "aws_lb_listener" "http" {
       protocol    = "HTTPS"
       status_code = "HTTP_301"
     }
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }

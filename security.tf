@@ -8,6 +8,15 @@ resource "aws_security_group" "lb_sg" {
   vpc_id      = aws_vpc.vpc.id
 }
 
+resource "aws_security_group_rule" "lb_nginx_out" {
+  type                     = "egress"
+  from_port                = var.reverse-proxy-port
+  to_port                  = var.reverse-proxy-port
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.wp_sg.id
+  security_group_id        = aws_security_group.lb_sg.id
+}
+
 resource "aws_security_group_rule" "public_http_in" {
   type              = "ingress"
   from_port         = 80
@@ -54,19 +63,19 @@ resource "aws_security_group" "wp_sg" {
   vpc_id      = aws_vpc.vpc.id
 }
 
-resource "aws_security_group_rule" "elb_http_in" {
+resource "aws_security_group_rule" "elb_nginx_in" {
   type                     = "ingress"
-  from_port                = 80
-  to_port                  = 80
+  from_port                = var.reverse-proxy-port
+  to_port                  = var.reverse-proxy-port
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.lb_sg.id
   security_group_id        = aws_security_group.wp_sg.id
 }
 
-resource "aws_security_group_rule" "elb_http_out" {
+resource "aws_security_group_rule" "elb_nginx_out" {
   type                     = "egress"
-  from_port                = 80
-  to_port                  = 80
+  from_port                = var.reverse-proxy-port
+  to_port                  = var.reverse-proxy-port
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.lb_sg.id
   security_group_id        = aws_security_group.wp_sg.id
@@ -99,4 +108,32 @@ resource "aws_security_group_rule" "debug_int" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.wp_sg.id
+}
+
+#  ___  ___
+# |   \| _ )
+# | |) | _ \
+# |___/|___/
+
+resource "aws_security_group" "db_sg" {
+  description = "Database security group"
+  vpc_id      = aws_vpc.vpc.id
+}
+
+resource "aws_security_group_rule" "db_in" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.wp_sg.id
+  security_group_id        = aws_security_group.db_sg.id
+}
+
+resource "aws_security_group_rule" "db_out" {
+  type                     = "egress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.wp_sg.id
+  security_group_id        = aws_security_group.db_sg.id
 }
