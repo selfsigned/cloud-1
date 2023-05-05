@@ -8,9 +8,12 @@ if [ -z "$db_host" ] || [ -z "$db_user" ] || [ -z "$db_name" ] || [ -z "$db_pass
     echo "ERROR: DB credentials not set!" >&2
     exit 6 # EXIT_NOTCONFIGURED
 fi
-mariadb -h "$db_host" -u "$db_user" -p"$db_password" -e "CREATE DATABASE $db_name ;"
+mariadb -h "$db_host" -u "$db_user" -p${db_password} -e "CREATE DATABASE $db_name ;"
 
-# TODO EC2 mount
+# Mount wordpress
+mkdir wordpress
+chmod 755 wordpress/
+mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${efs_host}:/ ./wordpress
 
 # Start docker services
 docker compose up -d

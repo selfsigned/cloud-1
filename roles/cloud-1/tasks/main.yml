@@ -2,6 +2,7 @@
   ansible.builtin.apt:
     name:
       - mariadb-client-10.5
+      - nfs-common
     state: present
     update_cache: true
     install_recommends: false
@@ -12,16 +13,15 @@
     state: directory
     mode: 0700
 
-- name: Create /srv/cloud-1/wordpress
-  ansible.builtin.file:
-    path: "{{ install_dir }}/wordpress"
-    state: directory
-    mode: 0755
-
-- name: Install nginx template
+- name: Install nginx wp template
   ansible.builtin.template:
-    src: nginx.conf.j2
+    src: nginx_wp.conf.j2
     dest: "{{ install_dir }}/cloud-1.conf"
+
+# - name: Install nginx pma template
+#   ansible.builtin.template:
+#     src: nginx_pma.conf.j2
+#     dest: "{{ install_dir }}/pma.conf"
 
 - name: Install docker-compose template
   ansible.builtin.template:
@@ -44,3 +44,8 @@
     name: "{{ systemd_unit_name }}"
     enabled: true
     state: stopped
+
+- name: Pre-pull docker images
+  shell:
+    cmd: "docker compose pull"
+    chdir: "{{ install_dir }}"

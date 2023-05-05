@@ -90,9 +90,29 @@ variable "wp-health-check" {
   default     = "/wp-admin/images/wordpress-logo.svg"
 }
 
-
 variable "pubkey" {
   type        = string
   description = "SSH pubkey"
 }
 
+// Wordpress cloud-init
+
+variable "db-name" {
+  type        = string
+  description = "Wordpress database name"
+}
+
+variable "wp-user" {
+  type        = string
+  description = "Wordpress administrator username"
+}
+
+variable "wp-password" {
+  type        = string
+  description = "Wordpress administrator password"
+}
+
+variable "wp-email" {
+  type        = string
+  description = "Wordpress administrator email"
+}

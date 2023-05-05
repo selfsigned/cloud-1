@@ -1,7 +1,7 @@
 # CLOUD-1
 
 Wordpress app deployment using AWS + Packer + Ansible following 42's [guidelines]("https://cdn.intra.42.fr/pdf/pdf/73997/en.subject.pdf").
-Said guidelines restrict the use of services like amazon's convenient `RDS` and force the use of `docker-compose`, giving the project an amateur-ish flare.
+Said guidelines force the use of `docker-compose`.
 
 *TODO infastructure diagram*
 
@@ -37,5 +37,4 @@ $ terraform apply
 [...]
 ```
 
-## High availability MySQL without RDS
-TODO, wordpress -> Consul -> sqlproxy -> mysql ?
+6) Once Wordpress is up and you are logged as admin with your credentials change the Wordpress and Site address to HTTPS in `/wp-admin/options-general.php`

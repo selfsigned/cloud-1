@@ -3,7 +3,6 @@ server {
     root /var/www/html;
     index index.php;
 
-
     location = /favicon.ico {
             log_not_found off;
             access_log off;
@@ -30,6 +29,26 @@ server {
     location = /robots.txt {
         add_header  Content-Type  text/plain;
         return 200 "User-agent: *\nDisallow: /\n";
+    }
+
+}
+
+server {
+    listen {{ pma_port }};
+
+    location / {
+        proxy_pass http://pma:9000;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass pma:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
     }
 
 }

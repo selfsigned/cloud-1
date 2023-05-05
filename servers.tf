@@ -44,7 +44,24 @@ resource "aws_launch_template" "wp" {
     security_groups             = [aws_security_group.wp_sg.id]
   }
 
-  // TODO NFS share for wp_content
+  user_data = base64encode(<<EOFF
+#!/bin/bash
+cat << 'EOF' > /srv/cloud-1/.env
+db_host="${split(":", aws_db_instance.wpdb.endpoint)[0]}"
+db_user="${var.db-user}"
+db_password="${var.db-password}"
+db_name="${var.db-name}"
+
+efs_host="${aws_efs_mount_target.wp_private1_target.dns_name}"
+
+url="http://${var.domain}"
+title="${var.domain}"
+admin_name="${var.wp-user}"
+admin_password="${var.wp-password}"
+admin_email="${var.wp-email}"
+EOF
+  EOFF
+  )
 
   image_id = data.aws_ami.cloud-1.id
 }

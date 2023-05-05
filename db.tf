@@ -15,7 +15,7 @@ resource "aws_db_instance" "wpdb" {
   allocated_storage     = 5
   max_allocated_storage = 10
 
-  port = 3306
+  port     = 3306
   username = var.db-user
   password = var.db-password
 
@@ -28,5 +28,5 @@ resource "aws_db_instance" "wpdb" {
 }
 
 output "rds_endpoint" {
-  value = "${aws_db_instance.wpdb.endpoint}"
+  value = aws_db_instance.wpdb.endpoint
 }

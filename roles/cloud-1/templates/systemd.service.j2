@@ -1,6 +1,7 @@
 [Unit]
 Description=Cloud-1 instance boot initialization
-After=docker.service
+Requires=docker.service
+After=cloud-init.service multi-user.target network-online.target sysinit.target
 BindsTo=docker.service
 ReloadPropagatedFrom=docker.service
 

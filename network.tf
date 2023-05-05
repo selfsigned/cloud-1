@@ -6,6 +6,8 @@
 // VPC
 resource "aws_vpc" "vpc" {
   cidr_block = var.vpc_cidr
+
+  enable_dns_hostnames = true
 }
 
 resource "aws_subnet" "subnet1" {
@@ -81,7 +83,7 @@ resource "aws_lb_target_group" "wp" {
     port                = var.reverse-proxy-port
     protocol            = "HTTP"
     matcher             = "200"
-    healthy_threshold   = 2
+    healthy_threshold   = 3
     unhealthy_threshold = 3
   }
 }
