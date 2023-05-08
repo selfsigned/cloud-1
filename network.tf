@@ -97,12 +97,22 @@ resource "aws_lb_listener" "wp" {
   certificate_arn   = aws_acm_certificate_validation.primary.certificate_arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.wp.arn
+    type = "forward"
+    forward {
+      target_group {
+        arn = aws_lb_target_group.wp.arn
+      }
+
+      stickiness {
+        duration = 600
+        enabled  = true
+      }
+    }
   }
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = [default_action] # will keep re-creating because of target arns otherwise
   }
 }
 

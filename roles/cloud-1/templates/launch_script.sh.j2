@@ -1,21 +1,28 @@
 #!/bin/bash
+
+# Wait for .env file to be setup by cloud-init
+echo "Wait for .env file to exist"
+until [ -f {{ install_dir }}/.env ]
+do
+     sleep 5
+done
+echo ".env file found"
+
 # Setup
 cd {{ install_dir }}
 export $(cat .env | tr -d '"') # Load variables
 
-# Create database if it doesn't exist
+echo Creating database if it does not exist
 if [ -z "$db_host" ] || [ -z "$db_user" ] || [ -z "$db_name" ] || [ -z "$db_password" ]; then
     echo "ERROR: DB credentials not set!" >&2
     exit 6 # EXIT_NOTCONFIGURED
 fi
 mariadb -h "$db_host" -u "$db_user" -p${db_password} -e "CREATE DATABASE $db_name ;"
 
-# Mount wordpress
-mkdir wordpress
-chmod 755 wordpress/
-mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${efs_host}:/ ./wordpress
+echo Mounting wordpress
+mkdir nfs
+mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${efs_host}:/ ./nfs
+mkdir -p nfs/wordpress nfs/phpMyAdmin ; chmod 755 nfs/wordpress nfs/phpMyAdmin
 
-# Start docker services
+echo Starting docker services
 docker compose up -d
-
-# TODO check if DB port is trimmed in .env

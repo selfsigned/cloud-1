@@ -37,4 +37,4 @@ $ terraform apply
 [...]
 ```
 
-6) Once Wordpress is up and you are logged as admin with your credentials change the Wordpress and Site address to HTTPS in `/wp-admin/options-general.php`
+7) The wordpress website and phpmyadmin should be up and running! Enjoy!

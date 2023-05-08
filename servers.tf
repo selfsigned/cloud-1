@@ -54,7 +54,7 @@ db_name="${var.db-name}"
 
 efs_host="${aws_efs_mount_target.wp_private1_target.dns_name}"
 
-url="http://${var.domain}"
+url="https://${var.domain}"
 title="${var.domain}"
 admin_name="${var.wp-user}"
 admin_password="${var.wp-password}"
